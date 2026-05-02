@@ -1,5 +1,7 @@
 // Global State
-let products = JSON.parse(localStorage.getItem('rubabSeluProductsV2')) || [
+let products = [
+   // your products here manually
+];
     {
         id: 1,
         name: "Premium Oxford Shirt",
