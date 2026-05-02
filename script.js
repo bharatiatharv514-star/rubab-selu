@@ -60,7 +60,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadProductsFromFirebase(); // 🔥 important
 });
-    
+    auth.onAuthStateChanged(user => {
+    if (user) {
+        document.getElementById('loginModal').style.display = 'none';
+    } else {
+        document.getElementById('loginModal').style.display = 'flex';
+    }
+});
 // Preloader
 function hidePreloader() {
     const preloader = document.querySelector('.preloader');
@@ -153,7 +159,13 @@ function setupEventListeners() {
     });
     
     // Admin
-    elements.adminToggle.addEventListener('click', toggleAdminPanel);
+    elements.adminToggle.addEventListener('click', () => {
+    if (!auth.currentUser) {
+        document.getElementById('loginModal').style.display = 'flex';
+        return;
+    }
+    toggleAdminPanel();
+});
     document.getElementById('closeAdmin').addEventListener('click', toggleAdminPanel);
     
     // Product form
@@ -428,3 +440,16 @@ const shopObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 
 shopObserver.observe(document.getElementById('shop'));
+function loginAdmin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+            document.getElementById('loginModal').style.display = 'none';
+            alert("✅ Login successful");
+        })
+        .catch((error) => {
+            alert("❌ " + error.message);
+        });
+}
