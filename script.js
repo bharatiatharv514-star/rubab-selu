@@ -66,12 +66,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadProductsFromFirebase(); // 🔥 important
 });
+    document.addEventListener("DOMContentLoaded", () => {
     auth.onAuthStateChanged(user => {
-    if (user) {
-        document.getElementById('loginModal').style.display = 'none';
-    } else {
-        document.getElementById('loginModal').style.display = 'flex';
-    }
+        const loginModal = document.getElementById('loginModal');
+
+        if (user) {
+            loginModal.style.display = 'none';
+        } else {
+            loginModal.style.display = 'none'; 
+            // 👆 homepage will show normally
+        }
+    });
 });
 // Preloader
 function hidePreloader() {
@@ -456,8 +461,8 @@ function loginAdmin() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
 
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
+    firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
             document.getElementById('loginModal').style.display = 'none';
             alert("✅ Login successful");
         })
