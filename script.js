@@ -1,7 +1,5 @@
 // Global State
-let products = [
-   // your products here manually
-];
+let products = [];
     {
         id: 1,
         name: "Premium Oxford Shirt",
@@ -56,13 +54,13 @@ const elements = {
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     hidePreloader();
-    renderProducts();
     setupEventListeners();
     startSlider();
     updateCartDisplay();
-    renderAdminProducts();
-});
 
+    loadProductsFromFirebase(); // 🔥 important
+});
+    
 // Preloader
 function hidePreloader() {
     const preloader = document.querySelector('.preloader');
@@ -305,12 +303,12 @@ function clearFilters() {
 }
 
 // Admin Functions
-function handleProductForm(e) {
+async function handleProductForm(e) {
     e.preventDefault();
-    
+
     const editId = document.getElementById('editId').value;
+
     const productData = {
-        id: editId ? parseInt(editId) : Date.now(),
         name: document.getElementById('productName').value,
         category: document.getElementById('productCategory').value,
         price: parseInt(document.getElementById('productPrice').value),
@@ -321,6 +319,19 @@ function handleProductForm(e) {
             L: document.getElementById('sizeL').checked,
             XL: document.getElementById('sizeXL').checked
         }
+    };
+
+    if (editId) {
+        await db.collection("products").doc(editId).set(productData);
+    } else {
+        await db.collection("products").add(productData);
+    }
+
+    elements.productForm.reset();
+    document.getElementById('editId').value = '';
+
+    alert("✅ Product saved online!");
+}
     };
     
     if (editId) {
@@ -376,12 +387,9 @@ window.editProduct = function(id) {
     }
 };
 
-window.deleteProduct = function(id) {
+window.deleteProduct = async function(id) {
     if (confirm('Delete this product?')) {
-        products = products.filter(p => p.id !== id);
-        localStorage.setItem('rubabSeluProductsV2', JSON.stringify(products));
-        renderProducts();
-        renderAdminProducts();
+        await db.collection("products").doc(id).delete();
     }
 };
 
