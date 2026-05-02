@@ -1,4 +1,10 @@
 // Global State
+document.addEventListener("DOMContentLoaded", () => {
+    const p = document.querySelector(".preloader");
+    if (p) {
+        p.remove(); // 🔥 force remove immediately
+    }
+});
 let products = [];
     {
         id: 1,
@@ -461,4 +467,8 @@ function loginAdmin() {
 }
 function logoutAdmin() {
     auth.signOut();
+    setTimeout(() => {
+    const p = document.querySelector(".preloader");
+    if (p) p.remove();
+}, 2000);
 }
