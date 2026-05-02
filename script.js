@@ -453,3 +453,6 @@ function loginAdmin() {
             alert("❌ " + error.message);
         });
 }
+function logoutAdmin() {
+    auth.signOut();
+}
