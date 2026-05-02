@@ -71,16 +71,22 @@ document.addEventListener('DOMContentLoaded', function() {
 function hidePreloader() {
     const preloader = document.querySelector('.preloader');
 
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            preloader.classList.add('hidden');
-        }, 500);
-    });
+    function removeLoader() {
+        if (preloader) {
+            preloader.style.opacity = '0';
+            preloader.style.pointerEvents = 'none';
 
-    // Safety fallback (VERY IMPORTANT)
-    setTimeout(() => {
-        preloader.classList.add('hidden');
-    }, 4000);
+            setTimeout(() => {
+                preloader.remove(); // 🔥 removes completely
+            }, 500);
+        }
+    }
+
+    // When page fully loads
+    window.addEventListener('load', removeLoader);
+
+    // Fallback (VERY IMPORTANT for mobile)
+    setTimeout(removeLoader, 3000);
 }
 
 // Slider
