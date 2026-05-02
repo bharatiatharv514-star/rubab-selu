@@ -164,8 +164,8 @@ function setupEventListeners() {
     
     // Admin tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => switchAdminTab(e.target.dataset.tab));
-    });
+    btn.addEventListener('click', (e) => switchAdminTab(e.target.dataset.tab, e));
+});
     
     // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -389,7 +389,7 @@ function switchAdminTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     
-    event.target.classList.add('active');
+    if (e) e.target.classList.add('active');
     document.getElementById(tab + 'Tab').classList.add('active');
 }
 
