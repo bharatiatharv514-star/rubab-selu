@@ -64,9 +64,17 @@ document.addEventListener('DOMContentLoaded', function() {
 // Preloader
 function hidePreloader() {
     const preloader = document.querySelector('.preloader');
+
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            preloader.classList.add('hidden');
+        }, 500);
+    });
+
+    // Safety fallback (VERY IMPORTANT)
     setTimeout(() => {
         preloader.classList.add('hidden');
-    }, 1500);
+    }, 4000);
 }
 
 // Slider
