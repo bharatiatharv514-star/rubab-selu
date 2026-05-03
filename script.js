@@ -1,83 +1,41 @@
 // Global State
-document.addEventListener("DOMContentLoaded", () => {
-    const p = document.querySelector(".preloader");
-    if (p) {
-        p.remove(); // 🔥 force remove immediately
-    }
-});
+
 let products = [];
-    {
-        id: 1,
-        name: "Premium Oxford Shirt",
-        category: "Shirts",
-        price: 2499,
-        image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-        sizes: { S: true, M: true, L: true, XL: false }
-    },
-    {
-        id: 2,
-        name: "Cotton Blend T-Shirt",
-        category: "T-Shirts",
-        price: 1299,
-        image: "https://images.unsplash.com/photo-1523205771623-e0faa4d2813d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-        sizes: { S: true, M: true, L: true, XL: true }
-    },
-    {
-        id: 3,
-        name: "Slim Fit Chinos",
-        category: "Pants",
-        price: 3499,
-        image: "https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-        sizes: { S: false, M: true, L: true, XL: true }
-    },
-    {
-        id: 4,
-        name: "Leather Bomber Jacket",
-        category: "Jackets",
-        price: 8999,
-        image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-        sizes: { S: true, M: true, L: false, XL: true }
-    }
-];
 
 let cart = JSON.parse(localStorage.getItem('rubabSeluCart')) || [];
 let currentSlideIndex = 0;
 
-// DOM Elements
-const elements = {
-    productsGrid: document.getElementById('productsGrid'),
-    cartCount: document.getElementById('cartCount'),
-    modalCartCount: document.getElementById('modalCartCount'),
-    cartModal: document.getElementById('cartModal'),
-    cartItems: document.getElementById('cartItems'),
-    cartTotal: document.getElementById('cartTotal'),
-    adminPanel: document.getElementById('adminPanel'),
-    adminToggle: document.getElementById('adminToggle'),
-    productForm: document.getElementById('productForm'),
-    productsList: document.getElementById('productsList')
-};
+// DOM Element
+let elements;
 
-// Initialize
 document.addEventListener('DOMContentLoaded', function() {
+
+    elements = {
+        productsGrid: document.getElementById('productsGrid'),
+        cartCount: document.getElementById('cartCount'),
+        modalCartCount: document.getElementById('modalCartCount'),
+        cartModal: document.getElementById('cartModal'),
+        cartItems: document.getElementById('cartItems'),
+        cartTotal: document.getElementById('cartTotal'),
+        adminPanel: document.getElementById('adminPanel'),
+        adminToggle: document.getElementById('adminToggle'),
+        productForm: document.getElementById('productForm'),
+        productsList: document.getElementById('productsList')
+    };
+
     hidePreloader();
     setupEventListeners();
     startSlider();
     updateCartDisplay();
+    loadProductsFromFirebase();
 
-    loadProductsFromFirebase(); // 🔥 important
-});
-    document.addEventListener("DOMContentLoaded", () => {
     auth.onAuthStateChanged(user => {
         const loginModal = document.getElementById('loginModal');
-
-        if (user) {
-            loginModal.style.display = 'none';
-        } else {
-            loginModal.style.display = 'none'; 
-            // 👆 homepage will show normally
-        }
+        if (loginModal) loginModal.style.display = 'none';
     });
-});
+
+}); // ✅ MUST END HERE
+
 // Preloader
 function hidePreloader() {
     const preloader = document.querySelector('.preloader');
@@ -123,6 +81,28 @@ function nextSlide() {
 }
 
 window.currentSlide = showSlide;
+
+// 🔥 ADD THIS BLOCK HERE
+function loadProductsFromFirebase() {
+    if (typeof db === 'undefined') {
+        console.error("❌ Firebase DB not initialized");
+        return;
+    }
+
+    db.collection("products").onSnapshot((snapshot) => {
+        products = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        console.log("🔥 Products synced:", products);
+
+        renderProducts();
+        renderAdminProducts();
+    }, (error) => {
+        console.error("❌ Firestore error:", error);
+    });
+}
 
 // Render Products
 function renderProducts(filteredProducts = products) {
@@ -176,14 +156,20 @@ function setupEventListeners() {
     });
     
     // Admin
+    if (elements.adminToggle) {
     elements.adminToggle.addEventListener('click', () => {
-    if (!auth.currentUser) {
-        document.getElementById('loginModal').style.display = 'flex';
-        return;
+        if (!auth.currentUser) {
+            document.getElementById('loginModal').style.display = 'flex';
+            return;
+        }
+        toggleAdminPanel();
+    });
     }
-    toggleAdminPanel();
-});
-    document.getElementById('closeAdmin').addEventListener('click', toggleAdminPanel);
+    
+    const closeBtn = document.getElementById('closeAdmin');
+if (closeBtn) {
+    closeBtn.addEventListener('click', toggleAdminPanel);
+}
     
     // Product form
     elements.productForm.addEventListener('submit', handleProductForm);
@@ -228,8 +214,9 @@ function closeCartModal() {
 }
 
 // Cart Functions
-function addToCart(productId) {
+function addToCart(productId, event) {
     const product = products.find(p => p.id === productId);
+if (!product) return;
     const existingItem = cart.find(item => item.id === productId);
     
     if (existingItem) {
@@ -275,9 +262,11 @@ function renderCartItems() {
                 <p>₹${item.price.toLocaleString()} x ${item.quantity}</p>
             </div>
             <div style="margin-left:auto;">
-                <button onclick="updateCartQuantity(${item.id}, -1)" style="background:none;border:none;color:#ef4444;font-size:1.2rem;">−</button>
-                <span style="margin:0 10px;font-weight:600;">${item.quantity}</span>
-                <button onclick="updateCartQuantity(${item.id}, 1)" style="background:none;border:none;color:#3b82f6;font-size:1.2rem;">+</button>
+                <button onclick="updateCartQuantity('${item.id}', -1)" style="background:none;border:none;color:#ef4444;font-size:1.2rem;">−</button>
+
+<span style="margin:0 10px;font-weight:600;">${item.quantity}</span>
+
+<button onclick="updateCartQuantity('${item.id}', 1)" style="background:none;border:none;color:#3b82f6;font-size:1.2rem;">+</button>
             </div>
         </div>
     `).join('');
@@ -364,27 +353,8 @@ async function handleProductForm(e) {
         await db.collection("products").add(productData);
     }
 
+    alert("✅ Product saved online");
     elements.productForm.reset();
-    document.getElementById('editId').value = '';
-
-    alert("✅ Product saved online!");
-}
-    };
-    
-    if (editId) {
-        const index = products.findIndex(p => p.id == editId);
-        products[index] = productData;
-    } else {
-        products.push(productData);
-    }
-    
-    localStorage.setItem('rubabSeluProductsV2', JSON.stringify(products));
-    renderProducts();
-    renderAdminProducts();
-    elements.productForm.reset();
-    document.getElementById('editId').value = '';
-    
-    alert('✅ Product saved successfully!');
 }
 
 function renderAdminProducts() {
@@ -397,12 +367,12 @@ function renderAdminProducts() {
                 </div>
             </div>
             <div class="product-admin-actions">
-                <button class="edit-btn" onclick="editProduct(${product.id})">
+                <button class="edit-btn" onclick="editProduct('${product.id}')">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="delete-btn" onclick="deleteProduct(${product.id})">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <button class="delete-btn" onclick="deleteProduct('${product.id}')">
+    <i class="fas fa-trash"></i>
+</button>
             </div>
         </div>
     `).join('');
@@ -430,7 +400,7 @@ window.deleteProduct = async function(id) {
     }
 };
 
-function switchAdminTab(tab) {
+function switchAdminTab(tab, e) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     
@@ -441,8 +411,8 @@ function switchAdminTab(tab) {
 // Add to cart event delegation
 document.addEventListener('click', function(e) {
     if (e.target.closest('.add-to-cart')) {
-        const productId = parseInt(e.target.closest('.add-to-cart').dataset.id);
-        addToCart(productId);
+        const productId = e.target.closest('.add-to-cart').dataset.id;
+        addToCart(productId, e); // ✅ pass event
     }
 });
 
@@ -456,7 +426,10 @@ const shopObserver = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.1 });
 
-shopObserver.observe(document.getElementById('shop'));
+const shopSection = document.getElementById('shop');
+if (shopSection) {
+    shopObserver.observe(shopSection);
+}
 function loginAdmin() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
