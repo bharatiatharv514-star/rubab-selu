@@ -1,4 +1,6 @@
 // Global State
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 let products = [];
 
