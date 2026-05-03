@@ -226,14 +226,21 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
 
-<script>
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-<script>
 
-    const firebaseConfig = {
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+    <div id="loginModal" class="modal">
+  <div class="modal-content" style="max-width:400px;">
+    <div cla<!-- Firebase (COMPLETE FIXED VERSION) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
   apiKey: "YOUR_KEY",
   authDomain: "YOUR_DOMAIN",
   projectId: "YOUR_PROJECT_ID",
@@ -242,18 +249,14 @@
   appId: "YOUR_APP_ID"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth(); 
-</script>
-};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
-const app = firebase.initializeApp(firebaseConfig);
+// Services
 const db = firebase.firestore();
+const auth = firebase.auth();
 </script>
-    <div id="loginModal" class="modal">
-  <div class="modal-content" style="max-width:400px;">
-    <div class="modal-header">
+        ss="modal-header">
       <h3>Admin Login</h3>
     </div>
 
