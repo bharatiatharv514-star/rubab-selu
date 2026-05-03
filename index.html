@@ -222,51 +222,46 @@
             </div>
         </div>
     </footer>
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
 
-
-};
-
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-</script>
-    <div id="loginModal" class="modal">
+ <div id="loginModal" class="modal">
   <div class="modal-content" style="max-width:400px;">
-    <div cla<!-- Firebase (COMPLETE FIXED VERSION) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
-<script>
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP_ID"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Services
-const db = firebase.firestore();
-const auth = firebase.auth();
-</script>
-        ss="modal-header">
-      <h3>Admin Login</h3>
-    </div>
+    
+    <div class="modal-header">
+  <h3>Admin Login</h3>
+  <span onclick="document.getElementById('loginModal').style.display='none'" class="close">&times;</span>
+</div>
 
     <div style="padding:20px;">
       <input type="email" id="loginEmail" placeholder="Email" style="width:100%;margin-bottom:10px;padding:10px;">
       <input type="password" id="loginPassword" placeholder="Password" style="width:100%;margin-bottom:10px;padding:10px;">
       <button onclick="loginAdmin()" class="btn-primary">Login</button>
     </div>
+
   </div>
 </div>
+  
+<!-- Firebase (FINAL CLEAN VERSION) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD_NCQqAvoQkaJ1DTv86ZJi19gkJ0CgUmU",
+  authDomain: "ubab-selu.firebaseapp.com",
+  projectId: "ubab-selu",
+  storageBucket: "ubab-selu.firebasestorage.app",
+  messagingSenderId: "789191791296",
+  appId: "1:789191791296:web:4a6cbf0d5d2ad6c7459325"
+};
+
+// Initialize Firebase ONCE
+firebase.initializeApp(firebaseConfig);
+
+// Make global (VERY IMPORTANT)
+window.db = firebase.firestore();
+window.auth = firebase.auth();
+</script>
     <script src="script.js?v=2"></script>
 </body>
 </html>
