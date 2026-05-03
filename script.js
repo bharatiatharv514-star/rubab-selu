@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCartDisplay();
     loadProductsFromFirebase();
 
-    if (typeof auth !== 'undefined') {
+    if (auth) {
     auth.onAuthStateChanged(user => {
         const loginModal = document.getElementById('loginModal');
 
@@ -93,10 +93,10 @@ window.currentSlide = showSlide;
 
 // 🔥 ADD THIS BLOCK HERE
 function loadProductsFromFirebase() {
-    if (typeof db === 'undefined') {
-        console.error("❌ Firebase DB not initialized");
-        return;
-    }
+    if (!db) {
+    console.error("❌ Firestore not loaded");
+    return;
+}
 
     db.collection("products").onSnapshot((snapshot) => {
         products = snapshot.docs.map(doc => ({
@@ -159,7 +159,7 @@ function setupEventListeners() {
     // ✅ ADMIN BUTTON (ONLY ONCE)
     if (elements.adminToggle) {
         elements.adminToggle.addEventListener('click', () => {
-
+            console.log("Admin clicked:", auth?.currentUser);
             const loginModal = document.getElementById('loginModal');
 
             if (!auth || !auth.currentUser) {
@@ -241,7 +241,9 @@ function toggleMobileMenu() {
 }
 
 function toggleAdminPanel() {
-    elements.adminPanel.classList.toggle('active');
+    if (!elements.adminPanel) return;
+
+elements.adminPanel.classList.toggle('active');
     document.body.style.overflow = elements.adminPanel.classList.contains('active') ? 'hidden' : '';
 }
 
@@ -277,14 +279,15 @@ if (!product) return;
 
 function updateCartDisplay() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    elements.cartCount.textContent = totalItems;
-    elements.modalCartCount.textContent = totalItems;
+    if (elements.cartCount) elements.cartCount.textContent = totalItems;
+if (elements.modalCartCount) elements.modalCartCount.textContent = totalItems;
     
     renderCartItems();
 }
 
 function renderCartItems() {
     if (cart.length === 0) {
+        if (!elements.cartItems || !elements.cartTotal) return;
         elements.cartItems.innerHTML = '<p style="text-align:center;padding:40px;color:#6b7280;">Your cart is empty</p>';
         elements.cartTotal.textContent = '0';
         return;
@@ -331,10 +334,9 @@ function clearCart() {
 
 // Filters
 function applyFilters() {
-    const category = document.getElementById('categoryFilter').value;
-    const priceRange = document.getElementById('priceFilter').value;
-    const size = document.getElementById('sizeFilter').value;
-
+   const category = document.getElementById('categoryFilter')?.value;
+const priceRange = document.getElementById('priceFilter')?.value;
+const size = document.getElementById('sizeFilter')?.value;
     let filtered = products.filter(product => {
 
         // Category
@@ -386,12 +388,16 @@ async function handleProductForm(e) {
         }
     };
 
-    if (editId) {
-        await db.collection("products").doc(editId).set(productData);
-    } else {
-        await db.collection("products").add(productData);
-    }
+    if (!db) {
+    alert("❌ Database not connected");
+    return;
+}
 
+if (editId) {
+    await db.collection("products").doc(editId).set(productData);
+} else {
+    await db.collection("products").add(productData);
+}
     alert("✅ Product saved online");
     elements.productForm.reset();
 }
@@ -473,7 +479,12 @@ function loginAdmin() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
 
-    firebase.auth().signInWithEmailAndPassword(email, password)
+    if (!auth) {
+    alert("❌ Firebase not loaded");
+    return;
+}
+
+auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             document.getElementById('loginModal').style.display = 'none';
             alert("✅ Login successful");
@@ -484,6 +495,6 @@ function loginAdmin() {
         });
 }
 function logoutAdmin() {
-    auth.signOut();
+    if (auth) auth.signOut();
     document.getElementById('loginModal').style.display = 'flex';
 }
