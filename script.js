@@ -117,7 +117,12 @@ function loadProductsFromFirebase() {
 // Render Products
 function renderProducts(filteredProducts = products) {
     elements.productsGrid.innerHTML = '';
-    
+
+    if (!filteredProducts.length) {
+        elements.productsGrid.innerHTML = '<p style="text-align:center;">No products found</p>';
+        return;
+    }
+
     filteredProducts.forEach(product => {
         const productCard = createProductCard(product);
         elements.productsGrid.appendChild(productCard);
@@ -135,7 +140,7 @@ function createProductCard(product) {
             <h3>${product.name}</h3>
             <div class="product-price">₹${product.price.toLocaleString()}</div>
             <div class="sizes-display">
-                ${Object.entries(product.sizes).map(([size, available]) => 
+                ${product.sizes ? Object.entries(product.sizes).map(([size, available]) =>
                     available ? 
                     `<span class="size-badge size-available">${size}</span>` :
                     `<span class="size-badge size-unavailable">${size}</span>`
@@ -160,7 +165,27 @@ function setupEventListeners() {
     });
     
     // Close modal
-    document.querySelector('.close').addEventListener('click', closeCartModal);
+    // ✅ FIX: handle ALL close buttons
+document.querySelectorAll('.close').forEach(btn => {
+    btn.addEventListener('click', () => {
+
+        // Close cart
+        if (elements.cartModal.classList.contains('active')) {
+            closeCartModal();
+        }
+
+        // Close admin
+        if (elements.adminPanel.classList.contains('active')) {
+            toggleAdminPanel();
+        }
+
+        // Close login modal
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal && loginModal.style.display === 'flex') {
+            loginModal.style.display = 'none';
+        }
+    });
+});
     window.addEventListener('click', (e) => {
         if (e.target === elements.cartModal) closeCartModal();
     });
@@ -184,11 +209,6 @@ function setupEventListeners() {
 
         toggleAdminPanel();
     });
-}
-    
-    const closeBtn = document.getElementById('closeAdmin');
-if (closeBtn) {
-    closeBtn.addEventListener('click', toggleAdminPanel);
 }
     
     // Product form
@@ -318,26 +338,29 @@ function applyFilters() {
     const category = document.getElementById('categoryFilter').value;
     const priceRange = document.getElementById('priceFilter').value;
     const size = document.getElementById('sizeFilter').value;
-    
+
     let filtered = products.filter(product => {
-        // Category filter
+
+        // Category
         if (category && product.category !== category) return false;
-        
-        // Price filter
+
+        // Price
         if (priceRange) {
             const [min, max] = priceRange.split(/[-+]/).map(Number);
+
             if (priceRange.includes('+')) {
-                return product.price >= min;
+                if (product.price < min) return false;
+            } else {
+                if (product.price < min || product.price > max) return false;
             }
-            return product.price >= min && product.price <= max;
         }
-        
-        // Size filter
-        if (size && !product.sizes[size]) return false;
-        
+
+        // Size
+        if (size && (!product.sizes || !product.sizes[size])) return false;
+
         return true;
     });
-    
+
     renderProducts(filtered);
 }
 
@@ -458,6 +481,7 @@ function loginAdmin() {
         .then((userCredential) => {
             document.getElementById('loginModal').style.display = 'none';
             alert("✅ Login successful");
+            toggleAdminPanel(); // 👈 ADD THIS
         })
         .catch((error) => {
             alert("❌ " + error.message);
@@ -465,8 +489,5 @@ function loginAdmin() {
 }
 function logoutAdmin() {
     auth.signOut();
-    setTimeout(() => {
-    const p = document.querySelector(".preloader");
-    if (p) p.remove();
-}, 2000);
+    document.getElementById('loginModal').style.display = 'flex';
 }
