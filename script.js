@@ -1,7 +1,6 @@
 // Global State
-const auth = firebase.auth();
-const db = firebase.firestore();
-
+const auth = firebase?.auth ? firebase.auth() : null;
+const db = firebase?.firestore ? firebase.firestore() : null;
 let products = [];
 
 let cart = JSON.parse(localStorage.getItem('rubabSeluCart')) || [];
@@ -156,72 +155,69 @@ function createProductCard(product) {
 
 // Event Listeners
 function setupEventListeners() {
-    // Mobile menu
-    document.querySelector('.hamburger').addEventListener('click', toggleMobileMenu);
+
+    // ✅ ADMIN BUTTON (ONLY ONCE)
+    if (elements.adminToggle) {
+        elements.adminToggle.addEventListener('click', () => {
+
+            const loginModal = document.getElementById('loginModal');
+
+            if (!auth || !auth.currentUser) {
+                if (loginModal) {
+                    loginModal.style.display = 'flex';
+                }
+                return;
+            }
+
+            toggleAdminPanel();
+        });
+    }
+
+    // ✅ MOBILE MENU
+    document.querySelector('.hamburger')?.addEventListener('click', toggleMobileMenu);
     
-    // Cart
-    document.querySelector('.cart-icon').addEventListener('click', () => {
+    // ✅ CART OPEN
+    document.querySelector('.cart-icon')?.addEventListener('click', () => {
         elements.cartModal.classList.add('active');
     });
-    
-    // Close modal
-    // ✅ FIX: handle ALL close buttons
-document.querySelectorAll('.close').forEach(btn => {
-    btn.addEventListener('click', () => {
 
-        // Close cart
-        if (elements.cartModal.classList.contains('active')) {
-            closeCartModal();
-        }
+    // ✅ CLOSE BUTTONS (MUST BE INSIDE FUNCTION)
+    document.querySelectorAll('.close').forEach(btn => {
+        btn.addEventListener('click', () => {
 
-        // Close admin
-        if (elements.adminPanel.classList.contains('active')) {
-            toggleAdminPanel();
-        }
+            if (elements.cartModal?.classList.contains('active')) {
+                closeCartModal();
+            }
 
-        // Close login modal
-        const loginModal = document.getElementById('loginModal');
-        if (loginModal && loginModal.style.display === 'flex') {
-            loginModal.style.display = 'none';
-        }
+            if (elements.adminPanel?.classList.contains('active')) {
+                toggleAdminPanel();
+            }
+
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal && loginModal.style.display === 'flex') {
+                loginModal.style.display = 'none';
+            }
+        });
     });
-});
+
+    // ✅ CLICK OUTSIDE CART
     window.addEventListener('click', (e) => {
         if (e.target === elements.cartModal) closeCartModal();
     });
     
-    // Admin
-    if (elements.adminToggle) {
-    elements.adminToggle.addEventListener('click', () => {
-
-        // 🔥 check if firebase auth exists
-        if (typeof auth === 'undefined' || !auth.currentUser) {
-            const loginModal = document.getElementById('loginModal');
-
-            if (loginModal) {
-                loginModal.style.display = 'flex';
-            } else {
-                alert("❌ Login modal not found");
-            }
-
-            return;
-        }
-
-        toggleAdminPanel();
-    });
+    // Product form
+    if (elements.productForm) {
+    elements.productForm.addEventListener('submit', handleProductForm);
 }
     
-    // Product form
-    elements.productForm.addEventListener('submit', handleProductForm);
-    
     // Filters
-    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
-    document.getElementById('priceFilter').addEventListener('change', applyFilters);
-    document.getElementById('sizeFilter').addEventListener('change', applyFilters);
-    document.getElementById('clearFilters').addEventListener('click', clearFilters);
+    document.getElementById('categoryFilter')?.addEventListener('change', applyFilters);
+document.getElementById('priceFilter')?.addEventListener('change', applyFilters);
+document.getElementById('sizeFilter')?.addEventListener('change', applyFilters);
+document.getElementById('clearFilters')?.addEventListener('click', clearFilters);
     
     // Cart actions
-    document.getElementById('clearCart').addEventListener('click', clearCart);
+   document.getElementById('clearCart')?.addEventListener('click', clearCart);
     
     // Admin tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
