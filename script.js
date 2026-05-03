@@ -29,10 +29,18 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCartDisplay();
     loadProductsFromFirebase();
 
+    if (typeof auth !== 'undefined') {
     auth.onAuthStateChanged(user => {
         const loginModal = document.getElementById('loginModal');
-        if (loginModal) loginModal.style.display = 'none';
+
+        if (user) {
+            console.log("✅ Logged in:", user.email);
+            if (loginModal) loginModal.style.display = 'none';
+        } else {
+            console.log("❌ Not logged in");
+        }
     });
+}
 
 }); // ✅ MUST END HERE
 
@@ -158,13 +166,23 @@ function setupEventListeners() {
     // Admin
     if (elements.adminToggle) {
     elements.adminToggle.addEventListener('click', () => {
-        if (!auth.currentUser) {
-            document.getElementById('loginModal').style.display = 'flex';
+
+        // 🔥 check if firebase auth exists
+        if (typeof auth === 'undefined' || !auth.currentUser) {
+            const loginModal = document.getElementById('loginModal');
+
+            if (loginModal) {
+                loginModal.style.display = 'flex';
+            } else {
+                alert("❌ Login modal not found");
+            }
+
             return;
         }
+
         toggleAdminPanel();
     });
-    }
+}
     
     const closeBtn = document.getElementById('closeAdmin');
 if (closeBtn) {
